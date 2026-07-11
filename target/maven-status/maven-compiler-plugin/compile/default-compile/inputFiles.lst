@@ -1,0 +1,13 @@
+C:\Users\r9979\OneDrive\Desktop\AI_powered_sales_data_quality\src\main\java\com\axtria\salesdata\controller\DashboardController.java
+C:\Users\r9979\OneDrive\Desktop\AI_powered_sales_data_quality\src\main\java\com\axtria\salesdata\controller\SalesController.java
+C:\Users\r9979\OneDrive\Desktop\AI_powered_sales_data_quality\src\main\java\com\axtria\salesdata\dto\DashboardStatsDto.java
+C:\Users\r9979\OneDrive\Desktop\AI_powered_sales_data_quality\src\main\java\com\axtria\salesdata\dto\SalesRecordDto.java
+C:\Users\r9979\OneDrive\Desktop\AI_powered_sales_data_quality\src\main\java\com\axtria\salesdata\dto\ValidationErrorDto.java
+C:\Users\r9979\OneDrive\Desktop\AI_powered_sales_data_quality\src\main\java\com\axtria\salesdata\entity\SalesRecord.java
+C:\Users\r9979\OneDrive\Desktop\AI_powered_sales_data_quality\src\main\java\com\axtria\salesdata\entity\UploadHistory.java
+C:\Users\r9979\OneDrive\Desktop\AI_powered_sales_data_quality\src\main\java\com\axtria\salesdata\exception\GlobalExceptionHandler.java
+C:\Users\r9979\OneDrive\Desktop\AI_powered_sales_data_quality\src\main\java\com\axtria\salesdata\repository\SalesRecordRepository.java
+C:\Users\r9979\OneDrive\Desktop\AI_powered_sales_data_quality\src\main\java\com\axtria\salesdata\repository\UploadHistoryRepository.java
+C:\Users\r9979\OneDrive\Desktop\AI_powered_sales_data_quality\src\main\java\com\axtria\salesdata\SalesDataApplication.java
+C:\Users\r9979\OneDrive\Desktop\AI_powered_sales_data_quality\src\main\java\com\axtria\salesdata\service\AiReportService.java
+C:\Users\r9979\OneDrive\Desktop\AI_powered_sales_data_quality\src\main\java\com\axtria\salesdata\service\SalesDataService.java

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Data Quality & Analytics Portal</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-cpu-fill me-2 text-primary-light"></i>
+                AXTRIA <span>DataQuality™</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <button class="btn btn-outline-danger btn-sm" id="btnReset" onclick="resetSystem()">
+                    <i class="bi bi-trash-fill me-1"></i> Reset Database
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 py-4">
+        
+        <!-- Row 1: KPI Cards -->
+        <div class="row g-3 mb-4">
+            <!-- KPI 1: Total Sales -->
+            <div class="col-md-3 col-sm-6">
+                <div class="metric-card">
+                    <div class="icon-wrapper">
+                        <i class="bi bi-currency-dollar fs-4"></i>
+                    </div>
+                    <div class="metric-value" id="kpiTotalSales">$0.00</div>
+                    <div class="metric-label">Total Revenue</div>
+                </div>
+            </div>
+            <!-- KPI 2: Average Sales -->
+            <div class="col-md-3 col-sm-6">
+                <div class="metric-card">
+                    <div class="icon-wrapper">
+                        <i class="bi bi-calculator fs-4"></i>
+                    </div>
+                    <div class="metric-value" id="kpiAvgSales">$0.00</div>
+                    <div class="metric-label">Average Order Size</div>
+                </div>
+            </div>
+            <!-- KPI 3: Highest Sale -->
+            <div class="col-md-2 col-sm-4">
+                <div class="metric-card">
+                    <div class="icon-wrapper text-success">
+                        <i class="bi bi-arrow-up-right-circle fs-4"></i>
+                    </div>
+                    <div class="metric-value" id="kpiMaxSale">$0.00</div>
+                    <div class="metric-label">Max Transaction</div>
+                </div>
+            </div>
+            <!-- KPI 4: Lowest Sale -->
+            <div class="col-md-2 col-sm-4">
+                <div class="metric-card">
+                    <div class="icon-wrapper text-danger">
+                        <i class="bi bi-arrow-down-left-circle fs-4"></i>
+                    </div>
+                    <div class="metric-value" id="kpiMinSale">$0.00</div>
+                    <div class="metric-label">Min Transaction</div>
+                </div>
+            </div>
+            <!-- KPI 5: Total Quantity -->
+            <div class="col-md-2 col-sm-4">
+                <div class="metric-card">
+                    <div class="icon-wrapper">
+                        <i class="bi bi-box-seam fs-4"></i>
+                    </div>
+                    <div class="metric-value" id="kpiTotalQuantity">0</div>
+                    <div class="metric-label">Units Sold</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <!-- KPI 6: Data Quality Score -->
+            <div class="col-md-6">
+                <div class="metric-card success-card" id="dqCard">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="metric-value" id="kpiDqScore">100.00%</div>
+                            <div class="metric-label">Data Quality Score (Valid / Total Records)</div>
+                            <small class="text-muted" id="dqLabel">No uploads logged yet.</small>
+                        </div>
+                        <div class="icon-wrapper fs-2 p-3" id="dqIconWrapper">
+                            <i class="bi bi-shield-check fs-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- KPI 7: Total records count -->
+            <div class="col-md-6">
+                <div class="metric-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="metric-value" id="kpiTotalRecords">0</div>
+                            <div class="metric-label">Total Valid Database Records</div>
+                            <small class="text-muted">Cleared of duplicates & spaces during ETL loading</small>
+                        </div>
+                        <div class="icon-wrapper fs-2 p-3">
+                            <i class="bi bi-database-check fs-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: ETL File Upload & Upload History -->
+        <div class="row g-4 mb-4">
+            <!-- CSV Ingestion Zone -->
+            <div class="col-lg-5">
+                <div class="custom-card h-100">
+                    <div class="custom-card-header">
+                        <span><i class="bi bi-file-earmark-arrow-up me-2 text-primary"></i>CSV Ingestion Pipeline</span>
+                    </div>
+                    <div class="custom-card-body d-flex flex-column justify-content-between">
+                        <div>
+                            <p class="text-muted small">
+                                Upload a CSV dataset containing sales records. The ETL pipeline will perform template header checks, clean whitespace, uppercase regions, parse values, filter duplicate records, and load the clean records to MySQL.
+                            </p>
+                            <div class="upload-zone my-3" id="dropzone">
+                                <i class="bi bi-cloud-arrow-up upload-icon"></i>
+                                <h5>Drag & Drop CSV file here</h5>
+                                <p class="text-muted small">or click to browse files</p>
+                                <input type="file" id="csvFileInput" accept=".csv">
+                            </div>
+                        </div>
+
+                        <!-- Upload Response Feedback Banner -->
+                        <div id="uploadFeedback" class="mt-2 d-none">
+                            <div class="alert alert-info py-2 px-3 mb-2 small" id="feedbackSummary"></div>
+                            <!-- Error Table -->
+                            <div id="validationErrorsContainer" class="d-none mt-2">
+                                <h6 class="text-danger small mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i>Validation Errors (Rows Skipped)</h6>
+                                <div style="max-height: 200px; overflow-y: auto;">
+                                    <table class="table table-sm table-bordered style-table small" id="errorsTable">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 15%">Row</th>
+                                                <th style="width: 25%">Column</th>
+                                                <th style="width: 25%">Value</th>
+                                                <th style="width: 35%">Issue</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="errorsTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Last 10 Uploads History -->
+            <div class="col-lg-7">
+                <div class="custom-card h-100">
+                    <div class="custom-card-header">
+                        <span><i class="bi bi-clock-history me-2 text-primary"></i>Upload History (Last 10 Uploads)</span>
+                    </div>
+                    <div class="custom-card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table align-middle" id="historyTable">
+                                <thead>
+                                    <tr>
+                                        <th>File Name</th>
+                                        <th>Upload Date/Time</th>
+                                        <th class="text-center">Total</th>
+                                        <th class="text-center">Valid</th>
+                                        <th class="text-center">Invalid</th>
+                                        <th class="text-center">Quality Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTableBody">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">No uploads registered yet.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: Visual Analytics (Charts) & Table Breakdown -->
+        <div class="row g-4 mb-4">
+            <!-- Chart columns -->
+            <div class="col-lg-7">
+                <div class="custom-card">
+                    <div class="custom-card-header">
+                        <span><i class="bi bi-bar-chart-line me-2 text-primary"></i>Regional Sales Distribution & Product Share</span>
+                    </div>
+                    <div class="custom-card-body">
+                        <div class="row">
+                            <div class="col-md-7 border-end">
+                                <h6 class="text-muted small text-center mb-3">Sales Volume by Region ($)</h6>
+                                <div style="height: 250px; position: relative;">
+                                    <canvas id="regionBarChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <h6 class="text-muted small text-center mb-3">Top Products Share ($)</h6>
+                                <div style="height: 250px; position: relative;">
+                                    <canvas id="productPieChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tables breakdown -->
+            <div class="col-lg-5">
+                <!-- Region breakdown -->
+                <div class="custom-card mb-3">
+                    <div class="custom-card-header py-2">
+                        <span class="fs-6"><i class="bi bi-geo-alt me-2 text-primary"></i>Region Statistics</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm" id="regionStatsTable">
+                            <thead>
+                                <tr>
+                                    <th>Region</th>
+                                    <th class="text-end">Total Sales</th>
+                                    <th class="text-end">Avg Sale Size</th>
+                                </tr>
+                            </thead>
+                            <tbody id="regionStatsTableBody">
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-3">No regional data.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Top & Bottom selling products -->
+                <div class="custom-card">
+                    <div class="custom-card-header py-2">
+                        <span class="fs-6"><i class="bi bi-tags me-2 text-primary"></i>Product Performance Ranking</span>
+                    </div>
+                    <div class="custom-card-body py-2 px-3">
+                        <div class="row">
+                            <div class="col-6 border-end">
+                                <h6 class="text-success small fw-bold mb-2"><i class="bi bi-award me-1"></i>Top Products</h6>
+                                <ol class="ps-3 small" id="topProductsList">
+                                    <li class="text-muted">No data</li>
+                                </ol>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="text-danger small fw-bold mb-2"><i class="bi bi-arrow-down-circle me-1"></i>Lowest Selling</h6>
+                                <ol class="ps-3 small" id="bottomProductsList">
+                                    <li class="text-muted">No data</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 4: Search & Paginated Database Explorer -->
+        <div class="row g-4 mb-4">
+            <div class="col-12">
+                <div class="custom-card">
+                    <div class="custom-card-header">
+                        <span><i class="bi bi-search me-2 text-primary"></i>Database Search & Explorer</span>
+                        <div class="d-flex align-items-center">
+                            <span class="badge badge-success px-2 py-1 small me-2" id="searchTotalCount">0 records found</span>
+                            <button class="btn btn-outline-primary btn-sm py-1" onclick="triggerExport()">
+                                <i class="bi bi-download me-1"></i> Export Summary CSV
+                            </button>
+                        </div>
+                    </div>
+                    <div class="custom-card-body pb-1">
+                        <!-- Search Filters Form -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-3">
+                                <label for="searchProduct" class="form-label small fw-medium text-muted">Product Name</label>
+                                <input type="text" class="form-control form-control-sm" id="searchProduct" placeholder="e.g. Laptop">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="searchRegion" class="form-label small fw-medium text-muted">Region</label>
+                                <select class="form-select form-select-sm" id="searchRegion">
+                                    <option value="">All Regions</option>
+                                    <option value="NORTH">North</option>
+                                    <option value="SOUTH">South</option>
+                                    <option value="EAST">East</option>
+                                    <option value="WEST">West</option>
+                                    <option value="CENTRAL">Central</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="searchDateFrom" class="form-label small fw-medium text-muted">Date From</label>
+                                <input type="date" class="form-control form-control-sm" id="searchDateFrom">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="searchDateTo" class="form-label small fw-medium text-muted">Date To</label>
+                                <input type="date" class="form-control form-control-sm" id="searchDateTo">
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end">
+                                <button class="btn btn-primary btn-sm w-100" onclick="performSearch(0)">
+                                    <i class="bi bi-filter"></i> Filter
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Results Table -->
+                        <div class="table-responsive mt-3" style="max-height: 380px;">
+                            <table class="table table-hover table-striped" id="searchResultsTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Product Name</th>
+                                        <th>Region</th>
+                                        <th class="text-end">Sales Value</th>
+                                        <th class="text-center">Quantity</th>
+                                        <th class="text-center">Order Date</th>
+                                        <th>ETL Loaded At</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="searchResultsTableBody">
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-4">No records loaded. Use the CSV Ingestion panel above to upload data.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination Navigation -->
+                        <nav>
+                            <ul class="pagination pagination-sm" id="searchPagination">
+                                <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                                <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 5: AI Executive Summary & Report Section -->
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="custom-card">
+                    <div class="custom-card-header d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-stars me-2 text-primary"></i>AI-Powered Business Summary</span>
+                        <div>
+                            <button class="btn btn-outline-secondary btn-sm px-3 me-2 d-none" id="btnDownloadPdf" onclick="downloadAiReportPdf()">
+                                <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF
+                            </button>
+                            <button class="btn btn-primary btn-sm px-3" id="btnGenerateReport" onclick="generateAiReport()">
+                                <i class="bi bi-cpu me-1"></i> Generate AI Report
+                            </button>
+                        </div>
+                    </div>
+                    <div class="custom-card-body">
+                        <div class="ai-report-container" id="aiReportBox">
+                            <div class="text-center text-muted py-5" id="aiReportPlaceholder">
+                                <i class="bi bi-journal-text fs-1 d-block mb-2 text-secondary"></i>
+                                <p class="mb-0">Click the button above to analyze KPI metrics and compile a professional sales audit.</p>
+                                <small class="text-muted d-block mt-1">Uses Groq LLM API or smart Template fallback.</small>
+                            </div>
+                            
+                            <!-- Shimmering Skeleton Loader -->
+                            <div id="aiLoader" class="d-none">
+                                <div class="skeleton-loader skeleton-title"></div>
+                                <div class="skeleton-loader skeleton-text"></div>
+                                <div class="skeleton-loader skeleton-text" style="width: 90%;"></div>
+                                <div class="skeleton-loader skeleton-text" style="width: 95%;"></div>
+                                <br>
+                                <div class="skeleton-loader skeleton-title" style="width: 40%;"></div>
+                                <div class="skeleton-loader skeleton-text" style="width: 85%;"></div>
+                                <div class="skeleton-loader skeleton-text"></div>
+                                <div class="skeleton-loader skeleton-text" style="width: 75%;"></div>
+                            </div>
+
+                            <!-- Rendered Markdown Report Container -->
+                            <div id="aiReportContent" class="d-none"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Marked JS for parsing Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- HTML2PDF JS for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Custom Application Logic JS -->
+    <script th:src="@{/js/dashboard.js}"></script>
+</body>
+</html>

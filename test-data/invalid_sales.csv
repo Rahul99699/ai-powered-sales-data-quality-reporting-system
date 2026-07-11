@@ -1,0 +1,6 @@
+Product,Region,Sales,Quantity,Date
+,North,1200.50,2,2026-07-01
+Smartphone,South,-800.00,5,2026-07-02
+Desk Chair,East,250.00,-10,2026-07-03
+Headphones,West,150.00,15,invalid-date
+Monitor,Central,450.00,3,2026-07-05
